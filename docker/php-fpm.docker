@@ -1,0 +1,16 @@
+FROM php:7.4.1-fpm
+
+WORKDIR /var/www
+
+COPY ./docker/php-ini-overrides.ini /usr/local/etc/php/conf.d/
+
+RUN apt-get update && apt-get install -y libmcrypt-dev libmagickwand-dev zip unzip libpq-dev libicu-dev zlib1g-dev && apt-get install libzip-dev -y && apt-get install libonig-dev -y
+
+RUN docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install mbstring \
+    && docker-php-ext-install exif \
+    && docker-php-ext-install intl \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install bcmath \
+    && docker-php-ext-install opcache
