@@ -8,7 +8,9 @@ use admin\models\Orders;
 use admin\models\Products;
 use admin\models\Runners;
 use admin\models\User;
+use ArrayObject;
 use phpDocumentor\Reflection\Types\Integer;
+use yii\debug\panels\MailPanel;
 use yii\web\Controller;
 use yii\web\HttpException;
 use function GuzzleHttp\Psr7\str;
@@ -25,6 +27,8 @@ class RunnersController extends Controller
 
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (\Yii::$app->security->validatePassword($password, $runner->password_hash)){
+            $runner->status = 'online';
+            $runner->save();
             return [
                 'token'=>$runner->auth_token,
                 'success'=>true
@@ -35,19 +39,18 @@ class RunnersController extends Controller
             throw new HttpException(401);
         }
     }
+
     public function actionOrders($page){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $token = \Yii::$app->request->getHeaders()['x-auth-token'];
         $runner = Runners::findOne(['auth_token'=>$token]);
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $orders = Orders::find()
-            ->orderBy(['status_id' => SORT_ASC])
-            ->limit(10)
-            ->offset(((($page-1) * 10 )))
-            ->all();
+        $offset = ($page-1)*10;
+        $query = \Yii::$app->db->createCommand("SELECT *, getDistance(lat,lng,$runner->latitude, $runner->longitude) as distance FROM orders order by distance limit 10 offset $offset");
+        $orders = json_decode(json_encode($query->queryAll()));
         if ($runner){
             for ($i=0; $i<count($orders); $i++){
                 $array_items = [];
-                foreach (explode(' ',$orders[$i]->items) as $item){
+                foreach (explode(' ', $orders[$i]->items) as $item){
                     $product = Products::findOne($item);
                     $array_items[] = [
                         'title'=>$product->title,
@@ -67,8 +70,36 @@ class RunnersController extends Controller
             throw new HttpException(401);
         }
     }
-
+    public function actionVerifyOrder(){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $code = \Yii::$app->request->post("code");
+        $auth_token = \Yii::$app->request->getHeaders()['x-auth-token'];
+        $runner = Runners::findOne(['auth_token'=>$auth_token]);
+        $model = Orders::findOne(['id'=>$runner->order_id]);
+        if ($runner->code == $code){
+            $runner->busy = false;
+            $runner->order_id = null;
+            $runner->money += (int)(($model->total + $model->delivery_price) * 0.1);
+            if ($runner->rating+5<100){
+                $runner->rating += 5;
+            } else{
+                $runner->rating = 100;
+            }
+            $model->status_id = 3;
+            $model->status = Orders::$statuses[3];
+            $model->save();
+            $runner->code = null;
+            $runner->save();
+            return [
+                'success' => true
+            ];
+        }
+        return [
+            'success' => false
+        ];
+    }
     public function actionOrderChangeStatus(){
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $auth_token = \Yii::$app->request->getHeaders()['x-auth-token'];
         $runner = Runners::findOne(['auth_token'=>$auth_token]);
         if ($runner){
@@ -86,14 +117,23 @@ class RunnersController extends Controller
                 }
             }
             if ($status_id == 3){
-                $runner->busy = false;
-                $runner->order_id = null;
-                $runner->money += (int)(($model->total + $model->delivery_price) * 0.1);
-                if ($runner->rating+5<100){
-                    $runner->rating += 5;
-                } else{
-                    $runner->rating = 100;
-                }
+                $basic  = new \Nexmo\Client\Credentials\Basic('bbfa49d1', 'lJ6Am96jovnHir8I');
+                $client = new \Nexmo\Client($basic);
+                $order_client = Orders::findOne(['id'=>$runner->order_id]);
+                $code = rand(1000,9999);
+                $runner->code = $code;
+                $runner->save();
+                $phone = $order_client->client_phone;
+                $text = 'EzShop';
+//                $message = $client->message()->sendText(
+//                    $phone,
+//                    $text,
+//                    $code
+//                );
+
+                return [
+                    'success'=>true
+                ];
             }
             if ($status_id == 2 && !$runner->busy){
                 $runner->busy = true;

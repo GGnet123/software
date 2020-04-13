@@ -2,6 +2,7 @@
 
 namespace admin\controllers;
 
+use admin\models\Runners;
 use admin\models\User;
 use Yii;
 use admin\models\Orders;
@@ -65,8 +66,9 @@ class OrdersController extends Controller
         $model->taken = $taken;
         if (sizeof($items)>1){
             $model->items = implode(' ', $items);
+        } else{
+            $model->items = $items[0];
         }
-        $model->items = $items[0];
         $this->Fire();
         $model->save();
 
@@ -109,7 +111,7 @@ class OrdersController extends Controller
         $service = new FirebaseNotifications(['authKey' =>
             'AAAAQP3DF58:APA91bFtdKrL5OaKFd-tXmygfrm_nG607zD9oZRELzQPwb1K_T1OQcSyBXjdJpAeHLGQMchajRvAkX3EGSvXP7YpkfxZdfg_AJ_EOQ1hGJiOb1cEdfcmsEpdvmb8VVByGGglSZyV7vhG']);
 
-        $all_users = User::find()->where(['!=','device_id','Null'])->andwhere(['!=','device_id',' '])->all();
+        $all_users = Runners::find()->where(['!=','device_id','Null'])->andwhere(['!=','device_id',' '])->all();
         $tokens = [];
         foreach ($all_users as $users) {
             $tokens[] = $users['device_id'];

@@ -14,6 +14,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'slug')->textInput(['maxlength' => 255])->hint('Создается автоматический если не введено') ?>
+
     <?= $form->field($model, 'popular')->checkbox() ?>
 
     <?= '<h2>Upload images</h2>' . \dosamigos\fileupload\FileUploadUI::widget([

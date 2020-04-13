@@ -28,7 +28,7 @@ $('#submitBtn').on('click',function () {
     var phone = $('#phone').val();
     var taken = $('#taken').val();
 
-    console.log(taken);
+    console.log(productsList);
         $.post(
             '/orders/save',
             {'name':name,'address':address,'card':card,'delivery':delivery,'phone':phone,'taken':taken,'products_ids' : productsList}

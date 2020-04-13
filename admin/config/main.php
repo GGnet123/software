@@ -18,6 +18,9 @@ return [
         ]
     ],
     'components' => [
+        'yandexMapsApi' => [
+            'class' => 'mirocow\yandexmaps\Api',
+        ],
         'request' => [
             'csrfParam' => '_csrf-admin',
             'trustedHosts' => [

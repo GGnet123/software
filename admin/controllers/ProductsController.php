@@ -136,18 +136,21 @@ class ProductsController extends Controller
 
         if ($file!=null){
             $path = \Yii::getAlias('@admin').'/web/assets/images/';
+            $name = Yii::$app->security->generateRandomString();
             $model->image = $file;
-            $model->image->saveAs($path . $file->name);
+            $ext = strtolower(pathinfo($file->name, PATHINFO_EXTENSION));
+
+            $model->image->saveAs($path . $name.'.'.$ext);
             $session = Yii::$app->session;
-            $session->set('image', $file->name);
+            $session->set('image', $name.'.'.$ext);
             return Json::encode([
                 'files' => [
                     [
-                        'name' => $file->name,
+                        'name' => $name.'.'.$ext,
                         'size' => $file->size,
                         'url' => $path,
                         'thumbnailUrl' => $path,
-                        'deleteUrl' => 'file-delete?name=' . $file->name,
+                        'deleteUrl' => 'file-delete?name=' . $name.'.'.$ext,
                         'deleteType' => 'POST',
                     ],
                 ],

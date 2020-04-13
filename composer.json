@@ -22,7 +22,9 @@
         "2amigos/yii2-file-upload-widget": "~1.0",
         "2amigos/yii2-ckeditor-widget": "^1.0@dev",
       "ext-curl": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "mirocow/yii2-yandex-maps": "*",
+        "nexmo/client": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

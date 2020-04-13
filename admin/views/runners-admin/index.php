@@ -29,8 +29,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'username',
-            'auth_token',
-            'password_hash',
+            [
+                'attribute' => 'busy',
+                'value' => function($data){
+                    if ($data == 0)
+                        return 'Занят';
+                    return 'Свободен';
+                }
+            ],
+            'money',
             'rating',
             //'status_id',
             //'status',

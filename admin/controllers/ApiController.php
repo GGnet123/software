@@ -37,7 +37,7 @@ class ApiController extends Controller
     }
     public function actionGetProducts(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return Products::find()->all();
+        return Products::find()->where(['is_active'=>1])->all();
     }
     public function actionGetCategories(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -45,17 +45,23 @@ class ApiController extends Controller
     }
     public function actionGetProductsByCategory($id){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $category = Categories::findOne($id)->products;
+        $category = Products::find()->where(['category_id'=>$id, 'is_active'=>1]);
         return $category;
     }
     public function actionGetPopularCategories(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $category = Categories::find()->where(['popular'=>true])->all();
+        $category = Categories::find()->where(['popular'=>1])->all();
         return $category;
     }
     public function actionGetPopularProducts(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $products = Products::find()->where(['popular'=>true])->all();
+        $products = Products::find()->where(['popular'=>1, 'is_active'=>1])->all();
         return $products;
+    }
+
+    public function actionTest(){
+//        var_dump(\Yii::getAlias('@admin'));
+        $file = file_get_contents(\Yii::getAlias('@admin') . '/web/assets/froot_market_products_categories.sql');
+        return $file;
     }
 }
