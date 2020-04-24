@@ -10,6 +10,7 @@ use admin\models\Runners;
 use admin\models\User;
 use ArrayObject;
 use phpDocumentor\Reflection\Types\Integer;
+use yii\db\Exception;
 use yii\debug\panels\MailPanel;
 use yii\web\Controller;
 use yii\web\HttpException;
@@ -106,6 +107,10 @@ class RunnersController extends Controller
             $id = \Yii::$app->request->getBodyParam('id');
             $status_id = \Yii::$app->request->getBodyParam('status_id');
             $model = Orders::findOne($id);
+            if (!$model){
+                throw new Exception("Invalid order id");
+                die();
+            }
             if ($status_id == 4){
                 $runner->busy = false;
                 $runner->money -= 200;

@@ -35,6 +35,11 @@
                             'icon' => 'bicycle'
                         ],
                         [
+                            'label' => 'Stores',
+                            'url' => ['/stores/index'],
+                            'icon' => 'home'
+                        ],
+                        [
                             'label' => 'Users',
                             'url' => ['/user/index'],
                             'icon' => 'user-plus'
