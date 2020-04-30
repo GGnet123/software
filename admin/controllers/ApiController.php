@@ -4,22 +4,65 @@
 namespace admin\controllers;
 
 
+use admin\models\Auctions;
 use admin\models\Categories;
 use admin\models\Products;
 use admin\models\StoreProductsModel;
+use admin\models\StoresModel;
 use admin\models\User;
+use yii\db\Exception;
 use yii\web\Controller;
 
 class ApiController extends Controller
 {
     public $enableCsrfValidation = false;
 
+    public function behaviors()
+    {
+        return [
+            'basicAuth' => [
+                'class' => \yii\filters\auth\HttpBasicAuth::className(),
+                'except' => [
+                    'test',
+                    'get-products',
+                    'get-store-products',
+                    'get-categories',
+                    'get-popular-categories',
+                    'get-popular-products',
+                    'stores',
+                    'get-fresh-products',
+                ],
+                'auth' => function ($username, $password) {
+                    $user = \common\models\User::find()->where(['username' => $username])->one();
+                    if ($user->validatePassword($password)) {
+                        return $user;
+                    }
+                    return null;
+                },
+            ],
+        ];
+    }
+    public function actionRegistration(){
+        $login = \Yii::$app->request->post('login');
+        $password = \Yii::$app->request->post('password');
+        $email = \Yii::$app->request->post('email');
+        $phone_number = \Yii::$app->request->post('phone');
+        $user = new User();
+        $user->username = $login;
+        $user->email = $email;
+        $user->password_hash = \Yii::$app->security->generatePasswordHash($password);
+        $user->phone_number = $phone_number;
+        $user->save();
+    }
     public function actionLogin(){
         $login = \Yii::$app->request->post('login');
         $password = \Yii::$app->request->post('password');
-        $lat = \Yii::$app->request->post('lat');
-        $lng = \Yii::$app->request->post('lng');
+        $address = \Yii::$app->request->post('address');
+        $coords = self::getLatLonByAddress($address);
+        $lat = $coords[0];
+        $lng = $coords[1];
         $user = User::findOne(['username'=>$login]);
+
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (\Yii::$app->security->validatePassword($password, $user->password_hash)){
             if ($lat && $lng){
@@ -36,7 +79,30 @@ class ApiController extends Controller
             ];
         }
     }
-
+    public function actionParticipate(){
+        $id = \Yii::$app->request->post('id');
+        $auction = Auctions::findOne(['id'=>$id]);
+        $user = User::findOne(['id'=>\Yii::$app->user->id]);
+        if ($user->bonuses >= $auction->price){
+            $auction->participants_ids .= $user->id . ',';
+            $user->bonuses -= $auction->price;
+            $user->save();
+            $auction->save();
+        } else{
+            throw new Exception('Не достаточно бонусов для участия');
+        }
+    }
+    public function actionGetWinner($id){
+        $auction = Auctions::findOne(['id'=>$id]);
+        $participants = explode(',', $auction->participants_ids);
+        $random = rand(0, sizeof($participants));
+        $winner = User::findOne(['id'=>$participants[$random]]);
+        $auction->is_active = false;
+        $auction->winner_id = $winner->id;
+        $auction->save();
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $winner;
+    }
     public static function getLatLonByAddress($address)
     {
 
@@ -57,11 +123,6 @@ class ApiController extends Controller
         }
         return false;
     }
-
-    public function actionTest(){
-        var_dump(self::getLatLonByAddress('Алматы, улица Кунаева, 77'));
-    }
-
     public function actionGetProducts($slug = null){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if ($slug){
@@ -131,7 +192,11 @@ class ApiController extends Controller
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return $products->all();
     }
-
+    public  function actionStores(){
+        $stores = StoresModel::find()->all();
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        return $stores;
+    }
     public function actionGetFreshProducts(){
         $products = Products::find()->where(['category_id' => 4])->orWhere(['category_id'=>8])->all();
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;

@@ -99,6 +99,10 @@ class RunnersController extends Controller
             'success' => false
         ];
     }
+    public function actionShowCode(){
+        $user = Runners::findOne(['id'=>1]);
+        return 'Code: ' . $user->code;
+    }
     public function actionOrderChangeStatus(){
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $auth_token = \Yii::$app->request->getHeaders()['x-auth-token'];

@@ -4,18 +4,18 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 /* @var $this yii\web\View */
-/* @var $searchModel admin\models\ProductsSearch */
+/* @var $searchModel admin\models\AuctionsSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Products';
+$this->title = 'Auctions';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="products-index">
+<div class="auctions-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Products', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Auctions', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -31,12 +31,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'title',
             'price',
             [
-                'class' => '\pheme\grid\ToggleColumn',
-                'attribute' => 'popular',
-                'filter' => [
-                    1 => 'Да',
-                    2 => 'Нет'
-                ]
+                'attribute' => 'winner_id',
+                'value' => function($data){
+                    $winner = \admin\models\User::findOne(['id'=>$data->winner_id]);
+                    return $winner->username;
+                }
+            ],
+            [
+                'attribute' => 'winner_phone',
+                'value' => function($data){
+                    $winner = \admin\models\User::findOne(['id'=>$data->winner_id]);
+                    return $winner->phone_number;
+                }
             ],
             [
                 'class' => '\pheme\grid\ToggleColumn',
@@ -46,7 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     2 => 'Нет'
                 ]
             ],
-            'image',
+            //'participants_ids',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

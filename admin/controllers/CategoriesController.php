@@ -3,6 +3,7 @@
 namespace admin\controllers;
 
 use admin\models\Products;
+use pheme\grid\actions\ToggleAction;
 use Yii;
 use admin\models\Categories;
 use admin\models\CategoriesSearch;
@@ -33,7 +34,17 @@ class CategoriesController extends Controller
             ],
         ];
     }
-
+    public function actions()
+    {
+        return [
+            'toggle' => [
+                'class' => ToggleAction::className(),
+                'modelClass' => 'admin/models/Categories',
+                // Uncomment to enable flash messages
+                //'setFlash' => true,
+            ]
+        ];
+    }
     /**
      * Lists all Categories models.
      * @return mixed

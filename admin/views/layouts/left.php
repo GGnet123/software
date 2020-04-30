@@ -32,12 +32,17 @@
                         [
                             'label' => 'Runners',
                             'url' => ['/runners-admin/index'],
-                            'icon' => 'bicycle'
+                            'icon' => 'car'
                         ],
                         [
                             'label' => 'Stores',
                             'url' => ['/stores/index'],
                             'icon' => 'home'
+                        ],
+                        [
+                            'label' => 'Auction',
+                            'url' => ['/auction/index'],
+                            'icon' => 'money'
                         ],
                         [
                             'label' => 'Users',

@@ -20,7 +20,11 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'password_hash')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'phone_number')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'bonuses')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'role')->dropDownList(\admin\models\User::$roles) ?>
 

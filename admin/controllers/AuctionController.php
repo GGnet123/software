@@ -4,20 +4,16 @@ namespace admin\controllers;
 
 use pheme\grid\actions\ToggleAction;
 use Yii;
-use admin\models\Products;
-use admin\models\ProductsSearch;
-use yii\helpers\FileHelper;
-use yii\helpers\Json;
+use admin\models\Auctions;
+use admin\models\AuctionsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\web\Session;
-use yii\web\UploadedFile;
 
 /**
- * ProductsController implements the CRUD actions for Products model.
+ * AuctionController implements the CRUD actions for Auctions model.
  */
-class ProductsController extends Controller
+class AuctionController extends Controller
 {
     /**
      * {@inheritdoc}
@@ -38,19 +34,19 @@ class ProductsController extends Controller
         return [
             'toggle' => [
                 'class' => ToggleAction::className(),
-                'modelClass' => Products::class,
+                'modelClass' => 'admin/models/Auctions',
                 // Uncomment to enable flash messages
-                'setFlash' => true,
+                //'setFlash' => true,
             ]
         ];
     }
     /**
-     * Lists all Products models.
+     * Lists all Auctions models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new ProductsSearch();
+        $searchModel = new AuctionsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -60,7 +56,7 @@ class ProductsController extends Controller
     }
 
     /**
-     * Displays a single Products model.
+     * Displays a single Auctions model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -73,13 +69,13 @@ class ProductsController extends Controller
     }
 
     /**
-     * Creates a new Products model.
+     * Creates a new Auctions model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Products();
+        $model = new Auctions();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -91,7 +87,7 @@ class ProductsController extends Controller
     }
 
     /**
-     * Updates an existing Products model.
+     * Updates an existing Auctions model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -111,7 +107,7 @@ class ProductsController extends Controller
     }
 
     /**
-     * Deletes an existing Products model.
+     * Deletes an existing Auctions model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -125,74 +121,18 @@ class ProductsController extends Controller
     }
 
     /**
-     * Finds the Products model based on its primary key value.
+     * Finds the Auctions model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Products the loaded model
+     * @return Auctions the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Products::findOne($id)) !== null) {
+        if (($model = Auctions::findOne($id)) !== null) {
             return $model;
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
-
-    public function actionUpload(){
-        $model = new Products();
-        $model->load(\Yii::$app->request->post(), '');
-        $file = UploadedFile::getInstanceByName('Products[image]');
-
-        if ($file!=null){
-            $path = \Yii::getAlias('@admin').'/web/assets/images/';
-            $name = Yii::$app->security->generateRandomString();
-            $model->image = $file;
-            $ext = strtolower(pathinfo($file->name, PATHINFO_EXTENSION));
-
-            $model->image->saveAs($path . $name.'.'.$ext);
-            $session = Yii::$app->session;
-            $session->set('image', $name.'.'.$ext);
-            return Json::encode([
-                'files' => [
-                    [
-                        'name' => $name.'.'.$ext,
-                        'size' => $file->size,
-                        'url' => $path,
-                        'thumbnailUrl' => $path,
-                        'deleteUrl' => 'file-delete?name=' . $name.'.'.$ext,
-                        'deleteType' => 'POST',
-                    ],
-                ],
-            ]);
-        }
-        else{
-            return '';
-        }
-    }
-
-    public function actionFileDelete($name){
-        $directory = \Yii::getAlias('@admin/web/assets/images') . DIRECTORY_SEPARATOR;
-        if (is_file($directory . DIRECTORY_SEPARATOR . $name)) {
-            unlink($directory . DIRECTORY_SEPARATOR . $name);
-        }
-
-        $files = FileHelper::findFiles($directory);
-        $output = [];
-        foreach ($files as $file) {
-            $fileName = basename($file);
-            $path = '/assets/images/' . $fileName;
-            $output['files'][] = [
-                'name' => $fileName,
-                'size' => filesize($file),
-                'url' => $path,
-                'thumbnailUrl' => $path,
-                'deleteUrl' => 'file-delete?name=' . $fileName,
-                'deleteType' => 'POST',
-            ];
-        }
-        return Json::encode($output);
-    }
-
 }

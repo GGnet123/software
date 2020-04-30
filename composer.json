@@ -21,10 +21,11 @@
         "dmstr/yii2-adminlte-asset": "^2.1",
         "2amigos/yii2-file-upload-widget": "~1.0",
         "2amigos/yii2-ckeditor-widget": "^1.0@dev",
-      "ext-curl": "*",
+        "ext-curl": "*",
         "ext-json": "*",
         "mirocow/yii2-yandex-maps": "*",
-        "nexmo/client": "dev-master"
+        "nexmo/client": "dev-master",
+        "pheme/yii2-toggle-column": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

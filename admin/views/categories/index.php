@@ -29,7 +29,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'title',
-            'popular',
+            [
+                'class' => '\pheme\grid\ToggleColumn',
+                'attribute' => 'popular',
+                'filter' => [
+                    1 => 'Да',
+                    2 => 'Нет'
+                ]
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

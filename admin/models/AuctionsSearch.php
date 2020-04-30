@@ -4,12 +4,12 @@ namespace admin\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use admin\models\StoresModel;
+use admin\models\Auctions;
 
 /**
- * StoresModelSearch represents the model behind the search form of `admin\models\StoresModel`.
+ * AuctionsSearch represents the model behind the search form of `admin\models\Auctions`.
  */
-class StoresModelSearch extends StoresModel
+class AuctionsSearch extends Auctions
 {
     /**
      * {@inheritdoc}
@@ -17,9 +17,8 @@ class StoresModelSearch extends StoresModel
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['address','title'], 'safe'],
-            [['lat', 'lng'], 'number'],
+            [['id', 'price', 'is_active','winner_id'], 'integer'],
+            [['title', 'image', 'participants_ids'], 'safe'],
         ];
     }
 
@@ -41,7 +40,7 @@ class StoresModelSearch extends StoresModel
      */
     public function search($params)
     {
-        $query = StoresModel::find();
+        $query = Auctions::find();
 
         // add conditions that should always apply here
 
@@ -60,12 +59,14 @@ class StoresModelSearch extends StoresModel
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'lat' => $this->lat,
-            'lng' => $this->lng,
-            'title' => $this->title
+            'price' => $this->price,
+            'is_active' => $this->is_active,
+            'winner_id' => $this->winner_id
         ]);
 
-        $query->andFilterWhere(['like', 'address', $this->address]);
+        $query->andFilterWhere(['like', 'title', $this->title])
+            ->andFilterWhere(['like', 'image', $this->image])
+            ->andFilterWhere(['like', 'participants_ids', $this->participants_ids]);
 
         return $dataProvider;
     }
