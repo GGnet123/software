@@ -25,8 +25,8 @@ use yii\widgets\ActiveForm;
 <!--    --><?//= $form->field($model, 'total')->textInput() ?>
 
 <!--    --><?//= $form->field($model, 'status')->textInput(['maxlength' => true]) ?>
-
-<!--    --><?//= $form->field($model, 'status_id')->textInput(['maxlength' => true]) ?>
+    <?php $stores =  \yii\helpers\ArrayHelper::map(\admin\models\StoresModel::find()->all(), 'id', 'title')?>
+    <?= $form->field($model, 'store_id')->dropDownList($stores) ?>
 
 <!--    --><?//= $form->field($model, 'delivery_type')->textInput(['maxlength' => true]) ?>
 

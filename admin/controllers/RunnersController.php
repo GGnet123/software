@@ -4,9 +4,11 @@
 namespace admin\controllers;
 
 
+use admin\models\OrderAmounts;
 use admin\models\Orders;
 use admin\models\Products;
 use admin\models\Runners;
+use admin\models\StoreProductsModel;
 use admin\models\User;
 use ArrayObject;
 use phpDocumentor\Reflection\Types\Integer;
@@ -51,12 +53,15 @@ class RunnersController extends Controller
         if ($runner){
             for ($i=0; $i<count($orders); $i++){
                 $array_items = [];
-                foreach (explode(' ', $orders[$i]->items) as $item){
-                    $product = Products::findOne($item);
+                $amount = OrderAmounts::findOne(['order_id'=>$orders['id']]);
+                $arr_cnt = explode(';', $amount->amount);
+                foreach (explode(';', $orders[$i]->items) as $key => $item){
+                    $product = Products::findOne(['id'=>$item]);
+                    $product_price = StoreProductsModel::findOne(['store_id'=>$orders[$i]->store_id, 'id'=>$product->id]);
                     $array_items[] = [
                         'title'=>$product->title,
-                        'price'=>$product->price,
-                        'cnt'=>'1',
+                        'price'=>$product_price->price,
+                        'cnt'=> $arr_cnt[$key],
                         'grams'=>'0',
                         'barcode'=>$product->barcode
                     ];
