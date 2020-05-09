@@ -107,7 +107,7 @@ class OrdersController extends Controller
         ]);
     }
 
-    private function Fire(){
+    public function Fire(){
         $service = new FirebaseNotifications(['authKey' =>
             'AAAAQP3DF58:APA91bFtdKrL5OaKFd-tXmygfrm_nG607zD9oZRELzQPwb1K_T1OQcSyBXjdJpAeHLGQMchajRvAkX3EGSvXP7YpkfxZdfg_AJ_EOQ1hGJiOb1cEdfcmsEpdvmb8VVByGGglSZyV7vhG']);
 

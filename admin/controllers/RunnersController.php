@@ -53,18 +53,20 @@ class RunnersController extends Controller
         if ($runner){
             for ($i=0; $i<count($orders); $i++){
                 $array_items = [];
-                $amount = OrderAmounts::findOne(['order_id'=>$orders['id']]);
+                $amount = OrderAmounts::findOne(['order_id'=>$orders[$i]->id]);
                 $arr_cnt = explode(';', $amount->amount);
                 foreach (explode(';', $orders[$i]->items) as $key => $item){
                     $product = Products::findOne(['id'=>$item]);
-                    $product_price = StoreProductsModel::findOne(['store_id'=>$orders[$i]->store_id, 'id'=>$product->id]);
-                    $array_items[] = [
-                        'title'=>$product->title,
-                        'price'=>$product_price->price,
-                        'cnt'=> $arr_cnt[$key],
-                        'grams'=>'0',
-                        'barcode'=>$product->barcode
-                    ];
+                    if ($product) {
+                        $product_price = StoreProductsModel::findOne(['store_id'=>$orders[$i]->store_id, 'id'=>$product->id]);
+                        $array_items[] = [
+                            'title'=>$product->title,
+                            'price'=>$product_price->price,
+                            'cnt'=> $arr_cnt[$key],
+                            'grams'=>'0',
+                            'barcode'=>$product->barcode
+                        ];
+                    }
                 }
                 $orders[$i]->items = $array_items;
             }
@@ -139,12 +141,12 @@ class RunnersController extends Controller
                 $runner->save();
                 $phone = $order_client->client_phone;
                 $text = 'EzShop';
-//                $message = $client->message()->sendText(
-//                    $phone,
-//                    $text,
-//                    $code
-//                );
-
+                /*$message = $client->message()->sendText(
+                    $phone,
+                    $text,
+                    $code
+                );
+                var_dump($message->getDeliveryError());*/
                 return [
                     'success'=>true
                 ];

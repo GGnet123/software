@@ -9,6 +9,7 @@ use admin\models\Categories;
 use admin\models\OrderAmounts;
 use admin\models\Orders;
 use admin\models\Products;
+use admin\models\Runners;
 use admin\models\StoreProductsModel;
 use admin\models\StoresModel;
 use admin\models\User;
@@ -23,9 +24,7 @@ class ApiController extends Controller
 
     public static function allowedDomains()
     {
-        return [
-             '*'
-        ];
+        return ['*'];
     }
 
     public function behaviors()
@@ -35,9 +34,10 @@ class ApiController extends Controller
                 'class' => \yii\filters\Cors::className(),
                 'cors'  => [
                     'Origin'                           => static::allowedDomains(),
-                    'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+                    'Access-Control-Request-Method' => ['GET', 'POST', 'OPTIONS'],
                     /*'Access-Control-Allow-Credentials' => true,*/
-                    'Access-Control-Max-Age'           => 3600,                 // Cache (seconds)
+                    'Access-Control-Max-Age'           => 3600,
+                    'Access-Control-Request-Headers' => ['*'],
                 ],
             ],
             'basicAuth' => [
@@ -63,6 +63,9 @@ class ApiController extends Controller
                 },
             ],
         ];
+    }
+    public function actionIndex() {
+        return true;
     }
     public function actionMakeOrder(){
         $products = \Yii::$app->request->post('products');
@@ -113,9 +116,27 @@ class ApiController extends Controller
         $amount->order_id = $order->id;
         $amount->amount = $str2;
         if ($amount->save()) {
+            $this->Fire();
+            return \Yii::$app->response->statusCode = 200;
             return $total * 0.01;
         };
     }
+
+    public function Fire(){
+        $service = new FirebaseNotifications(['authKey' =>
+            'AAAAQP3DF58:APA91bFtdKrL5OaKFd-tXmygfrm_nG607zD9oZRELzQPwb1K_T1OQcSyBXjdJpAeHLGQMchajRvAkX3EGSvXP7YpkfxZdfg_AJ_EOQ1hGJiOb1cEdfcmsEpdvmb8VVByGGglSZyV7vhG']);
+
+        $all_users = Runners::find()->where(['!=','device_id','Null'])->andwhere(['!=','device_id',' '])->all();
+        $tokens = [];
+        foreach ($all_users as $users) {
+            $tokens[] = $users['device_id'];
+        }
+        $message = array('title' => 'EzShop', 'body' => 'Новый заказ!');
+        $service->sendNotification($tokens, $message);
+
+        return $this->redirect(['index']);
+    }
+
     public function actionRegistration(){
         $login = \Yii::$app->request->post('login');
         $password = \Yii::$app->request->post('password');
