@@ -92,7 +92,7 @@ class ApiController extends Controller
         $order->client_name = $client_name . ' ' . $client_surname;
         $order->client_address = str_replace('Казахстан, Алматы,','', $address) . ', Подъезд ' . $dom . ', кв ' . $kv;
         $order->store_id = $store[0]->id;
-        $order->delivery_price = $store[0]->distance * 2000;
+        $order->delivery_price = $store[0]->distance * 20000 + 200;
         $order->total = $total;
         $order->is_card = $is_card;
         $order->taken = $is_card == true ? 0 : $taken;
@@ -117,7 +117,6 @@ class ApiController extends Controller
         $amount->amount = $str2;
         if ($amount->save()) {
             $this->Fire();
-            return \Yii::$app->response->statusCode = 200;
             return $total * 0.01;
         };
     }
@@ -133,8 +132,6 @@ class ApiController extends Controller
         }
         $message = array('title' => 'EzShop', 'body' => 'Новый заказ!');
         $service->sendNotification($tokens, $message);
-
-        return $this->redirect(['index']);
     }
 
     public function actionRegistration(){

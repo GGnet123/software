@@ -9,6 +9,7 @@ use admin\models\Orders;
 use admin\models\Products;
 use admin\models\Runners;
 use admin\models\StoreProductsModel;
+use admin\models\StoresModel;
 use admin\models\User;
 use ArrayObject;
 use phpDocumentor\Reflection\Types\Integer;
@@ -179,6 +180,11 @@ class RunnersController extends Controller
             $model->save();
         }
     }
+    public function actionStores() {
+        $stores = StoresModel::find()->all();
+        return $this->render('stores', ['stores'=>$stores]);
+    }
+
     public function actionRunnerProfile(){
         $auth_token =  \Yii::$app->request->getHeaders()['x-auth-token'];
         $runner = Runners::findOne(['auth_token'=>$auth_token]);
